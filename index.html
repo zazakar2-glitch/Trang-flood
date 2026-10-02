@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b2940">
+  <title>ศูนย์ช่วยเหลือน้ำท่วม จังหวัดตรัง</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="container nav">
+      <div class="brand">
+        <div class="brand-icon">🌊</div>
+        <div>
+          <div class="brand-title">ศูนย์ช่วยเหลือน้ำท่วม</div>
+          <div class="brand-sub">จังหวัดตรัง</div>
+        </div>
+      </div>
+      <button class="location-chip" id="locateTop">⌖ ใช้ตำแหน่งของฉัน</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero-card">
+      <div class="hero-icon">≋</div>
+      <div>
+        <div class="eyebrow">TRANG FLOOD CENTER</div>
+        <h1>รายงานระดับน้ำจังหวัดตรัง</h1>
+        <p>ตรวจสอบระดับน้ำและสถานการณ์พื้นที่ใกล้คุณแบบเข้าใจง่าย</p>
+      </div>
+    </section>
+
+    <section class="location-panel card">
+      <div class="section-title"><span>⌖</span> น้ำท่วมใกล้ฉันไหม?</div>
+      <div class="location-actions">
+        <button class="primary-btn" id="locateBtn">◉ ตรวจตำแหน่งของฉัน</button>
+        <button class="secondary-btn" id="districtBtn">⌖ เลือกอำเภอ / ตำบล</button>
+      </div>
+      <div class="hint" id="locationHint">อนุญาตตำแหน่งเพื่อค้นหาพื้นที่ใกล้คุณ หรือเลือกพื้นที่ด้วยตัวเอง</div>
+
+      <div class="selector" id="selector">
+        <label for="districtSelect">อำเภอ</label>
+        <select id="districtSelect"></select>
+        <label for="subdistrictSelect">ตำบล</label>
+        <select id="subdistrictSelect"></select>
+        <button class="apply-btn" id="applyArea">แสดงสถานการณ์พื้นที่นี้</button>
+      </div>
+    </section>
+
+    <section class="status-card card" id="localStatus">
+      <div class="status-head">
+        <div>
+          <div class="muted">พื้นที่ที่กำลังดู</div>
+          <h2 id="selectedArea">อำเภอเมืองตรัง</h2>
+        </div>
+        <span class="status-pill watch" id="statusPill">🟡 เฝ้าระวัง</span>
+      </div>
+      <div class="water-value">
+        <div>
+          <span class="value" id="waterLevel">1.42</span>
+          <span class="unit">เมตร</span>
+        </div>
+        <div class="trend" id="trend">↗ เพิ่มขึ้น 0.08 ม.</div>
+      </div>
+      <div class="meter">
+        <div class="meter-fill" id="meterFill"></div>
+        <div class="meter-mark m1"></div>
+        <div class="meter-mark m2"></div>
+        <div class="meter-mark m3"></div>
+      </div>
+      <div class="meter-labels">
+        <span>ปกติ</span><span>เฝ้าระวัง</span><span>เสี่ยง</span><span>อันตราย</span>
+      </div>
+      <div class="update-row">
+        <span>อัปเดตล่าสุด <b id="updatedAt">14:30 น.</b></span>
+        <span id="stationName">สถานีตัวอย่าง: แม่น้ำตรัง</span>
+      </div>
+    </section>
+
+    <section class="section-block">
+      <div class="section-heading">
+        <div>
+          <div class="eyebrow dark">LIVE OVERVIEW</div>
+          <h2>สถานการณ์น้ำในจังหวัดตรัง</h2>
+        </div>
+        <button class="refresh-btn" id="refreshBtn">↻ อัปเดตข้อมูล</button>
+      </div>
+      <div class="summary-grid">
+        <div class="summary normal"><span>🟢</span><b id="normalCount">3</b><small>ปกติ</small></div>
+        <div class="summary watch"><span>🟡</span><b id="watchCount">4</b><small>เฝ้าระวัง</small></div>
+        <div class="summary risk"><span>🟠</span><b id="riskCount">2</b><small>เสี่ยงน้ำท่วม</small></div>
+        <div class="summary danger"><span>🔴</span><b id="dangerCount">1</b><small>น้ำท่วม</small></div>
+      </div>
+    </section>
+
+    <section class="card map-card">
+      <div class="section-title">🗺️ แผนที่สถานการณ์น้ำ</div>
+      <div id="map"></div>
+      <div class="map-legend">
+        <span><i class="dot green"></i>ปกติ</span>
+        <span><i class="dot yellow"></i>เฝ้าระวัง</span>
+        <span><i class="dot orange"></i>เสี่ยง</span>
+        <span><i class="dot red"></i>น้ำท่วม</span>
+      </div>
+    </section>
+
+    <section class="section-block">
+      <div class="section-heading">
+        <div>
+          <div class="eyebrow dark">WATER STATIONS</div>
+          <h2>รายงานระดับน้ำรายพื้นที่</h2>
+        </div>
+      </div>
+      <div class="station-grid" id="stationGrid"></div>
+    </section>
+
+    <section class="help-card">
+      <div class="help-icon">🆘</div>
+      <div class="help-copy">
+        <div class="eyebrow">EMERGENCY HELP</div>
+        <h2>ต้องการความช่วยเหลือ?</h2>
+        <p>แจ้งจุดน้ำท่วม ขอความช่วยเหลือ หรือแจ้งเหตุฉุกเฉินในพื้นที่</p>
+      </div>
+      <div class="help-actions">
+        <button class="danger-btn" id="reportBtn">แจ้งจุดน้ำท่วม</button>
+        <button class="outline-light" id="helpBtn">ขอความช่วยเหลือ</button>
+      </div>
+    </section>
+
+    <section class="notice card">
+      <div class="notice-icon">⚠️</div>
+      <div>
+        <h3>หมายเหตุเกี่ยวกับข้อมูล</h3>
+        <p>ข้อมูลในหน้านี้เป็นข้อมูลตัวอย่างสำหรับการพัฒนาเว็บเท่านั้น ควรเชื่อมต่อข้อมูลระดับน้ำจากหน่วยงานที่เกี่ยวข้องก่อนนำไปใช้งานจริง และกำหนดเกณฑ์เตือนภัยตามแต่ละสถานี</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container footer-inner">
+      <span>ศูนย์ช่วยเหลือน้ำท่วม จังหวัดตรัง</span>
+      <span>อัปเดตแบบเรียลไทม์เมื่อเชื่อมต่อ API</span>
+    </div>
+  </footer>
+
+  <div class="modal" id="modal">
+    <div class="modal-box">
+      <button class="modal-close" id="modalClose">×</button>
+      <div id="modalContent"></div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
